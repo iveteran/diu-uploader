@@ -128,3 +128,22 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# vim swap files
+*.swp
+*.swo
+
+# tmp files
+tmp
+temp
+draft
+
+# lock files
+*.lock
+package-lock.json
+
+# svelte kit output
+.svelte-kit
+
+# preject output
+build

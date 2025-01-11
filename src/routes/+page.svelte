@@ -88,7 +88,7 @@
 
     enqueueUnuploadedFiles()
 
-    //await enableWatchFiles()
+    await enableWatchFiles()
     console.log("> onMount done")
   })
 
@@ -377,6 +377,54 @@
       uploadDir,
       (event) => {
         console.log('DIU documents upload directory event', event);
+        if (event.type.create && event.type.create.kind === 'file') {
+          event.paths.forEach(async (path) => {
+            const filePostfix = path.substring(path.lastIndexOf('.') + 1)
+            if (_supportedFileTypes.has(filePostfix)) {
+              const fileRelativePath = path.substring(path.indexOf(uploadDir))
+              // TODO: make file event unique
+
+              const newFileObj = await buildFileObject(fileRelativePath)
+              _files.unshift(newFileObj)
+              enqueueUpload(newFileObj)
+            }
+          })
+        } else if (event.type.remove && event.type.remove.kind === "file") {
+          event.paths.forEach(async (path) => {
+            const filePostfix = path.substring(path.lastIndexOf('.') + 1)
+            if (_supportedFileTypes.has(filePostfix)) {
+              const fileRelativePath = path.substring(path.indexOf(uploadDir))
+              const file = getFileObjectByPath(fileRelativePath)
+              const fileMd5 = file['md5']
+
+              // TODO: make file event unique
+
+              await removeServerUploadedFile(fileMd5)
+              removeLocalFile(file)
+              dequeueUploadByPath(fileRelativePath)
+            }
+          })
+        } else if (event.type.modify && event.type.modify.kind === "data") {
+          event.paths.forEach(async (path) => {
+            const filePostfix = path.substring(path.lastIndexOf('.') + 1)
+            if (_supportedFileTypes.has(filePostfix)) {
+              // file modified: remove old file and add changed file
+              const fileRelativePath = path.substring(path.indexOf(uploadDir))
+              const file = getFileObjectByPath(fileRelativePath)
+              const fileMd5 = file['md5']
+
+              // TODO: make file event unique
+
+              await removeServerUploadedFile(fileMd5)
+              removeLocalFile(file)
+              dequeueUploadByPath(fileRelativePath)
+
+              const newFileObj = await buildFileObject(fileRelativePath)
+              _files.unshift(newFileObj)
+              enqueueUpload(newFileObj)
+            }
+          })
+        }
       },
       {
         baseDir: BaseDirectory.Home,

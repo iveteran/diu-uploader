@@ -19,11 +19,13 @@
     const response = await fetch(`${baseUrl}/api/user/login`, {
       method: 'POST',
       timeout: 10,  // seconds
-      headers: {"content-type": "application/json"},
+      headers: {
+        "content-type": "application/json",
+      },
       body: JSON.stringify({
         username: _username,
         password: _password,
-        client_type: clientType,
+        client: clientType,
       }),
     })
 

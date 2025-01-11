@@ -6,7 +6,7 @@
   import { goto } from '$app/navigation';
   import { stat, readTextFile, readDir, BaseDirectory, watch } from '@tauri-apps/plugin-fs';
   import { join, homeDir } from '@tauri-apps/api/path';
-  import { user, baseUrl, uploadDir, uploadUrl } from '../stores.js';
+  import { user, baseUrl, uploadDir, uploadUrl, clientType } from '../stores.js';
 
   let _name = $state("")
   let _greetMsg = $state("")
@@ -115,6 +115,8 @@
       url: uploadUrl,
       headers: {
         'x-token': 'my_token',
+        'x-client': clientType,
+        'mwx-ua': clientType,  // Compatible to old version
       },
       //formParams: {
       //  'lang': 'zh-CN',
